@@ -45,7 +45,7 @@ class NeuralNetwork {
   }
 
   void updateAll() {
-    updateAll();
+    updateNextRow();
   }
 
 

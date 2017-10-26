@@ -6,49 +6,53 @@ class Complex {
     this.b = b;
   }
 
-  void display() {
-    String output;
+  void toString() {
+    String repr;
     if (this.a == 0) {
       if (this.b == 0)
-        output = "0";
+        repr = "0";
 
       if (this.b == 1)
-        output = "i";
+        repr = "i";
 
       else if (this.b == -1)
-        output = "-i";
+        repr = "-i";
 
       else
-        output = str(this.b) + "i";
+        repr = str(this.b) + "i";
     }
     else {
-      output = str(this.a);
+      repr = str(this.a);
 
       if (this.b == 1)
-        output += " + i";
+        repr += " + i";
 
       else if (this.b == -1)
-        output += " - i";
+        repr += " - i";
 
       else if (this.b > 0)
-        output += " + " + str(this.b) + "i";
+        repr += " + " + str(this.b) + "i";
 
       else if (this.b < 0)
-        output += " - " + str(-this.b) + "i";
-      // else is this.b == 0, and there is nothing more to add onto the output for that case.
+        repr += " - " + str(-this.b) + "i";
+      // else is this.b == 0, and there is nothing more to add onto the repr for that case.
     }
 
-    println(output);
+    return repr;
+  }
+
+  void display() {
+    println(this.toString());
+  }
+
+  Complex multiply(float s) {
+    return new Complex(this.a * s, this.b * s);
   }
 
   Complex add(Complex other) {
     float newA = this.a + other.a;
     float newB = this.b + other.b;
     return new Complex(newA, newB);
-  }
-
-  float magnitude() {
-    return sqrt(pow(this.a, 2) + pow(this.b, 2));
   }
 
   Complex multiply(Complex other) {
@@ -61,5 +65,9 @@ class Complex {
     float newA = pow(this.a, 2) - pow(this.b, 2);
     float newB = 2 * this.a * this.b;
     return new Complex(newA, newB);
+  }
+
+  float abs() {
+    return sqrt(pow(this.a, 2) + pow(this.b, 2));
   }
 }

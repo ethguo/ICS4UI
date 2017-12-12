@@ -52,23 +52,24 @@ Vector[] getFarthestPairBruteForce(Vector[] points) {
 Vector[] getFarthestPairMonotoneChain(Vector[] points) {
   Vector[] pointsSorted = mergeSort(points, 0, numPoints-1);
 
-  Deque<Vector> upper = new Deque<Vector>();
-  Deque<Vector> lower = new Deque<Vector>();
+  Stack<Vector> upper = new Stack<Vector>();
+  Stack<Vector> lower = new Stack<Vector>();
 
   for (int i = 0; i < numPoints; i++) {
     Vector point = pointsSorted[i];
     while (upper.size() > 1 && getDirection(upper.peek(1), upper.peek(), point) <= 0) {
-      upper.removeLast(); // Pop last element from stack
+      upper.pop();
     }
     while (lower.size() > 1 && getDirection(lower.peek(1), lower.peek(), point) >= 0) {
-      lower.removeLast(); // Pop last element from stack
+      lower.pop();
     }
-    // Push to end of stack
-    upper.addLast(point);
-    lower.addLast(point);
+    upper.push(point);
+    lower.push(point);
   }
   // At this point, upper and lower contain the top half and bottom half of the convex hull
   // (the leftmost and rightmost points are in both sets)
+
+  upper.reverse();
 
   for (Vector p : upper) {
     // Colour all the points in the upper set red.
@@ -81,35 +82,33 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
     p.colour = (p.colour == #FF0000) ? #FFFF00 : #00FF00;
   }
 
-
   float bestDist = 0;
   Vector[] bestPoints = new Vector[2];
-  int iUpper = 0;
-  int iLower = lower.size()-1;
-  while (iUpper < upper.size()-1 || iLower > 0) {
-    Vector p1 = upper.get(iUpper);
-    Vector p2 = lower.get(iLower);
+
+  Vector p1 = upper.peek();
+  Vector p2 = lower.peek();
+  while (upper.size() > 0 || lower.size() > 0) {
     float dist = getDistance(p1, p2);
     if (dist > bestDist) {
       bestDist = dist;
       bestPoints[0] = p1;
       bestPoints[1] = p2;
     }
-    print(iUpper);
+    println(upper.size());
     println(p1);
-    print(iLower);
+    println(lower.size());
     println(p2);
     println();
 
-    if (iUpper == upper.size()-1)
-      iLower--;
-    else if (iLower == 0)
-      iUpper++;
-    else if ((upper.get(iUpper+1).y - upper.get(iUpper).y) * (lower.get(iLower).x - lower.get(iLower-1).x)
-         > (upper.get(iUpper+1).x - upper.get(iUpper).x) * (lower.get(iLower).y - lower.get(iLower-1).y))
-      iUpper++;
+    if (upper.isEmpty())
+      p2 = lower.pop();
+    else if (lower.isEmpty())
+      p1 = upper.pop();
+    else if ((upper.peek().y - p1.y) * (p2.x - lower.peek().x)
+         > (upper.peek().x - p1.x) * (p2.y - lower.peek().y))
+      p1 = upper.pop();
     else
-      iLower--;
+      p2 = lower.pop();
   }
 
   return bestPoints;

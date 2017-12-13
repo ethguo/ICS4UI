@@ -1,10 +1,7 @@
-JSONObject data;
-
-void setup() {
-  size(400, 400);
-  data = loadJSONObject("https://httpbin.org/get");
-  print(data);
+String[] lines = loadStrings("input.txt");
+PrintWriter fOut = createWriter("output.txt");
+for (int i = 0; i < lines.length; i++) {
+  int x = parseInt(lines[i]);
+  fOut.println(x + 1);
 }
-
-void draw() {
-}
+fOut.close();

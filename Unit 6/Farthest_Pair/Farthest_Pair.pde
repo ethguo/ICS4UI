@@ -23,12 +23,13 @@ void setup() {
 
   farthestPair = getFarthestPairBruteForce(points);
   farthestPair2 = getFarthestPairMonotoneChain(points);
-  print(farthestPair[0].x);
-  print(", ");
-  println(farthestPair[0].y);
-  print(farthestPair[1].x);
-  print(", ");
-  println(farthestPair[1].y);
+
+  println("Farthest pair according to brute force search:");
+  println("(" + nf(farthestPair[0].x) + ", " + nf(farthestPair[0].y) + ")");
+  println("(" + nf(farthestPair[1].x) + ", " + nf(farthestPair[1].y) + ")");
+  println("Farthest pair according to monotone chain + rotating calipers:");
+  println("(" + nf(farthestPair2[0].x) + ", " + nf(farthestPair2[0].y) + ")");
+  println("(" + nf(farthestPair2[1].x) + ", " + nf(farthestPair2[1].y) + ")");
 }
 
 Vector[] getFarthestPairBruteForce(Vector[] points) {

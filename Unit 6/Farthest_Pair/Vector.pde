@@ -24,8 +24,4 @@ class Vector extends PVector {
   boolean isBefore(Vector other) {
     return (this.x < other.x) || (this.x == other.x && this.y <= other.y);
   }
-
-  Vector minus(Vector other) {
-    return new Vector(this.x - other.x, this.y - other.y);
-  }
 }

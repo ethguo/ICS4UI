@@ -16,14 +16,13 @@ void setup() {
   size(600, 600);
   noLoop();
 
-  boolean resultsMatch = true;
-  int t = 0;
-  while (resultsMatch && t < 100) {
+  // Randomly generate a bunch of (x, y) points
   points = new Vector[numPoints];
   for (int i = 0; i < numPoints; i++) {
     points[i] = new Vector(random(50, width-50), random(50, width-50));
   }
 
+  // Get the farthest pair, according to each algorithm
   farthestPair = getFarthestPairBruteForce(points);
   farthestPair2 = getFarthestPairMonotoneChain(points);
 
@@ -34,12 +33,11 @@ void setup() {
   println(farthestPair2[0]);
   println(farthestPair2[1]);
 
-  resultsMatch = (farthestPair[0] == farthestPair2[0] && farthestPair[1] == farthestPair2[1])
+  // Check if the two algorithms returned the same set of two points.
+  boolean resultsMatch = (farthestPair[0] == farthestPair2[0] && farthestPair[1] == farthestPair2[1])
                       || (farthestPair[0] == farthestPair2[1] && farthestPair[1] == farthestPair2[0]);
 
   println("Results match?: " + resultsMatch);
-  t++;}
-  println("T: " + t);
 }
 
 Vector[] getFarthestPairBruteForce(Vector[] points) {
@@ -101,33 +99,29 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
 
   float bestDist = 0;
   Vector[] farthestPair = new Vector[2];
-  int iUpper = upper.size()-1;
-  int iLower = lower.size()-1;
 
-  while (iUpper > 0 || iLower > 0) {
-    Vector p1 = upper.get(iUpper);
-    Vector p2 = lower.get(iLower);
+  while (upper.size() > 1 || lower.size() > 1) {
+    Vector p1 = upper.peek();
+    Vector p2 = lower.peek();
+
+    // Check if this pair of points is farther than the farthest pair found so far.
     float dist = getDistance(p1, p2);
     if (dist > bestDist) {
       bestDist = dist;
       farthestPair[0] = p1;
       farthestPair[1] = p2;
     }
-    print(iUpper);
-    println(p1);
-    print(iLower);
-    println(p2);
-    println();
 
-    if (iUpper == 0)
-      iLower--;
-    else if (iLower == 0)
-      iUpper--;
-    else if (getCrossProductFromPoints(upper.get(iUpper), upper.get(iUpper-1),
-                                       lower.get(iLower-1), lower.get(iLower)) > 0)
-      iUpper--;
-    else
-      iLower--;
+    if (upper.size() == 1)
+      lower.pop();
+    else if (lower.size() == 1)
+      upper.pop();
+    else if (getCrossProductFromPoints(p1, upper.peek(1), lower.peek(1), p2) > 0) {
+      upper.pop();
+    }
+    else {
+      lower.pop();
+    }
   }
 
   return farthestPair;
@@ -136,14 +130,15 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
 void draw() {
   background(0);
 
+  // Draw a yellow line representing the farthest pair, according to the brute force algorithm.
+  // If the two algorithms returned the same thing, this line should be hidden by cyan line.
   stroke(#FFFF00);
   line(farthestPair[0].x, height-farthestPair[0].y, farthestPair[1].x, height-farthestPair[1].y);
 
+  // Draw a cyan line representing the farthest pair according to the second algorithm.
   stroke(#00FFFF);
   line(farthestPair2[0].x, height-farthestPair2[0].y, farthestPair2[1].x, height-farthestPair2[1].y);
 
-  // farthestPair[0].colour = #0000FF;
-  // farthestPair[1].colour = #0000FF;
   for (int i = 0; i < numPoints; i++) {
     points[i].drawPoint();
   }

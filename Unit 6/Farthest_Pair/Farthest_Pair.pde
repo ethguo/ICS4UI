@@ -68,14 +68,14 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
   Stack<Vector> upper = new Stack<Vector>();
   Stack<Vector> lower = new Stack<Vector>();
 
+  // Repeatedly try adding the next point, while removing any points that are "inside" the new hull.
   for (int i = 0; i < numPoints; i++) {
     Vector point = pointsSorted[i];
-    while (upper.size() > 1 && getDirection(upper.peek(1), upper.peek(), point) <= 0) {
+    while (upper.size() > 1 && getDirection(upper.peek(1), upper.peek(), point) <= 0)
       upper.pop();
-    }
-    while (lower.size() > 1 && getDirection(lower.peek(1), lower.peek(), point) >= 0) {
+    while (lower.size() > 1 && getDirection(lower.peek(1), lower.peek(), point) >= 0)
       lower.pop();
-    }
+
     upper.push(point);
     lower.push(point);
   }
@@ -93,9 +93,11 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
     p.colour = (p.colour == #FF0000) ? #FFFF00 : #00FF00;
   }
 
-  upper.reverse();
 
   // ROTATING CALIPERS STEP
+
+  // Flip the lower set, so that the two ends of the "calipers" start on opposite sides of the convex hull.
+  lower.reverse();
 
   float bestDist = 0;
   Vector[] farthestPair = new Vector[2];
@@ -112,16 +114,16 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
       farthestPair[1] = p2;
     }
 
+    // If there is only one element left in either the upper or lower set, just check it against each remaining point in the opposite set.
     if (upper.size() == 1)
       lower.pop();
     else if (lower.size() == 1)
       upper.pop();
-    else if (getCrossProductFromPoints(p1, upper.peek(1), lower.peek(1), p2) > 0) {
-      upper.pop();
-    }
-    else {
+    // If there are more than one points in each set, check which end of the "calipers" we should move in order to rotate clockwise.
+    else if (getCrossProductFromPoints(p1, upper.peek(1), lower.peek(1), p2) > 0)
       lower.pop();
-    }
+    else
+      upper.pop();
   }
 
   return farthestPair;

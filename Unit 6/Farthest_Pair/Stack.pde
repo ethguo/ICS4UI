@@ -4,14 +4,15 @@ class Stack<E> extends ArrayList<E> {
     this.add(e);
   }
   E pop() {
+    // Removes and returns the top element
     return this.remove(this.size() - 1);
   }
   E peek() {
-    // returns the top element
+    // Returns the top element, without removing it
     return this.peek(0);
   }
   E peek(int i) {
-    // returns the i-th element from the top
+    // Returns the i-th element from the top (i=0 is the top element).
     return this.get(this.size() - i - 1);
   }
   void reverse() {

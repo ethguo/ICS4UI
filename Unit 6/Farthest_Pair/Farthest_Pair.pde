@@ -6,6 +6,7 @@
 //   new Vector(400, 300),
 //   new Vector( 40, 300)
 // };
+
 int numPoints = 25;
 Vector[] points;
 Vector[] farthestPair;
@@ -94,21 +95,25 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
       bestPoints[0] = p1;
       bestPoints[1] = p2;
     }
-    println(upper.size());
+    print(upper.size());
     println(p1);
-    println(lower.size());
+    print(lower.size());
     println(p2);
-    println();
 
-    if (upper.isEmpty())
+    if (upper.isEmpty()) {
       p2 = lower.pop();
-    else if (lower.isEmpty())
+    }
+    else if (lower.isEmpty()) {
       p1 = upper.pop();
-    else if ((upper.peek().y - p1.y) * (p2.x - lower.peek().x)
-         > (upper.peek().x - p1.x) * (p2.y - lower.peek().y))
+    }
+    else if (
+          (upper.peek().y - p1.y) * (p2.x - lower.peek().x)
+          < (upper.peek().x - p1.x) * (p2.y - lower.peek().y))
       p1 = upper.pop();
     else
       p2 = lower.pop();
+
+    println();
   }
 
   return bestPoints;
@@ -145,6 +150,7 @@ float getDirection(Vector p, Vector q, Vector r) {
 }
 
 Vector[] mergeSort(Vector[] a, int start, int end) {
+  // Merge sort, implemented with 
   Vector[] b = new Vector[a.length];
   if (start == end) {
     return new Vector[] {a[start]}; // Singleton array

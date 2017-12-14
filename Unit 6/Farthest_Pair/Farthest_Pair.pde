@@ -16,6 +16,9 @@ void setup() {
   size(600, 600);
   noLoop();
 
+  boolean resultsMatch = true;
+  int t = 0;
+  while (resultsMatch && t < 100) {
   points = new Vector[numPoints];
   for (int i = 0; i < numPoints; i++) {
     points[i] = new Vector(random(50, width-50), random(50, width-50));
@@ -31,10 +34,12 @@ void setup() {
   println(farthestPair2[0]);
   println(farthestPair2[1]);
 
-  boolean resultsMatch = (farthestPair[0] == farthestPair2[0] && farthestPair[1] == farthestPair2[1])
+  resultsMatch = (farthestPair[0] == farthestPair2[0] && farthestPair[1] == farthestPair2[1])
                       || (farthestPair[0] == farthestPair2[1] && farthestPair[1] == farthestPair2[0]);
 
   println("Results match?: " + resultsMatch);
+  t++;}
+  println("T: " + t);
 }
 
 Vector[] getFarthestPairBruteForce(Vector[] points) {
@@ -90,15 +95,16 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
     p.colour = (p.colour == #FF0000) ? #FFFF00 : #00FF00;
   }
 
+  upper.reverse();
 
   // ROTATING CALIPERS STEP
 
   float bestDist = 0;
   Vector[] farthestPair = new Vector[2];
-  int iUpper = 0;
+  int iUpper = upper.size()-1;
   int iLower = lower.size()-1;
 
-  while (iUpper < upper.size()-1 || iLower > 0) {
+  while (iUpper > 0 || iLower > 0) {
     Vector p1 = upper.get(iUpper);
     Vector p2 = lower.get(iLower);
     float dist = getDistance(p1, p2);
@@ -113,13 +119,13 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
     println(p2);
     println();
 
-    if (iUpper == upper.size()-1)
+    if (iUpper == 0)
       iLower--;
     else if (iLower == 0)
-      iUpper++;
-    else if (getCrossProductFromPoints(upper.get(iUpper), upper.get(iUpper+1),
+      iUpper--;
+    else if (getCrossProductFromPoints(upper.get(iUpper), upper.get(iUpper-1),
                                        lower.get(iLower-1), lower.get(iLower)) > 0)
-      iUpper++;
+      iUpper--;
     else
       iLower--;
   }

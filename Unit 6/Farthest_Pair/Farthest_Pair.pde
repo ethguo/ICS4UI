@@ -25,35 +25,43 @@ void setup() {
   farthestPair2 = getFarthestPairMonotoneChain(points);
 
   println("Farthest pair according to brute force search:");
-  println("(" + nf(farthestPair[0].x) + ", " + nf(farthestPair[0].y) + ")");
-  println("(" + nf(farthestPair[1].x) + ", " + nf(farthestPair[1].y) + ")");
+  println(farthestPair[0]);
+  println(farthestPair[1]);
   println("Farthest pair according to monotone chain + rotating calipers:");
-  println("(" + nf(farthestPair2[0].x) + ", " + nf(farthestPair2[0].y) + ")");
-  println("(" + nf(farthestPair2[1].x) + ", " + nf(farthestPair2[1].y) + ")");
+  println(farthestPair2[0]);
+  println(farthestPair2[1]);
+
+  boolean resultsMatch = (farthestPair[0] == farthestPair2[0] && farthestPair[1] == farthestPair2[1])
+                      || (farthestPair[0] == farthestPair2[1] && farthestPair[1] == farthestPair2[0]);
+
+  println("Results match?: " + resultsMatch);
 }
 
 Vector[] getFarthestPairBruteForce(Vector[] points) {
   float dist;
   float bestDist = 0;
-  Vector[] bestPoints = new Vector[2];
+  Vector[] farthestPair = new Vector[2];
 
   for (int i = 0; i < numPoints; i++) {
     for (int j = 0; j < numPoints; j++) {
       dist = getDistance(points[i], points[j]);
       if (dist > bestDist) {
         bestDist = dist;
-        bestPoints[0] = points[i];
-        bestPoints[1] = points[j];
+        farthestPair[0] = points[i];
+        farthestPair[1] = points[j];
       }
     }
   }
 
-  return bestPoints;
+  return farthestPair;
 }
 
 Vector[] getFarthestPairMonotoneChain(Vector[] points) {
-  Vector[] pointsSorted = mergeSort(points, 0, numPoints-1);
+  // MONOTONE CHAIN STEP
 
+  // Get a copy of the points array, sorted by ascending x-coordinate
+  Vector[] pointsSorted = mergeSort(points, 0, numPoints-1);
+  
   Stack<Vector> upper = new Stack<Vector>();
   Stack<Vector> lower = new Stack<Vector>();
 
@@ -71,53 +79,52 @@ Vector[] getFarthestPairMonotoneChain(Vector[] points) {
   // At this point, upper and lower contain the top half and bottom half of the convex hull
   // (the leftmost and rightmost points are in both sets)
 
-  upper.reverse();
-
   for (Vector p : upper) {
     // Colour all the points in the upper set red.
     p.colour = #FF0000;
   }
   for (Vector p : lower) {
     // For all the points in the lower set,
-    // If the point is already coloured red (i.e. in upper), then colour it yellow.
+    // If the point is already coloured red (i.e. point is in both sets), then colour it yellow.
     // Else, colour it green.
     p.colour = (p.colour == #FF0000) ? #FFFF00 : #00FF00;
   }
 
-  float bestDist = 0;
-  Vector[] bestPoints = new Vector[2];
 
-  Vector p1 = upper.peek();
-  Vector p2 = lower.peek();
-  while (upper.size() > 0 || lower.size() > 0) {
+  // ROTATING CALIPERS STEP
+
+  float bestDist = 0;
+  Vector[] farthestPair = new Vector[2];
+  int iUpper = 0;
+  int iLower = lower.size()-1;
+
+  while (iUpper < upper.size()-1 || iLower > 0) {
+    Vector p1 = upper.get(iUpper);
+    Vector p2 = lower.get(iLower);
     float dist = getDistance(p1, p2);
     if (dist > bestDist) {
       bestDist = dist;
-      bestPoints[0] = p1;
-      bestPoints[1] = p2;
+      farthestPair[0] = p1;
+      farthestPair[1] = p2;
     }
-    print(upper.size());
+    print(iUpper);
     println(p1);
-    print(lower.size());
+    print(iLower);
     println(p2);
-
-    if (upper.isEmpty()) {
-      p2 = lower.pop();
-    }
-    else if (lower.isEmpty()) {
-      p1 = upper.pop();
-    }
-    else if (
-          (upper.peek().y - p1.y) * (p2.x - lower.peek().x)
-          < (upper.peek().x - p1.x) * (p2.y - lower.peek().y))
-      p1 = upper.pop();
-    else
-      p2 = lower.pop();
-
     println();
+
+    if (iUpper == upper.size()-1)
+      iLower--;
+    else if (iLower == 0)
+      iUpper++;
+    else if (getCrossProductFromPoints(upper.get(iUpper), upper.get(iUpper+1),
+                                       lower.get(iLower-1), lower.get(iLower)) > 0)
+      iUpper++;
+    else
+      iLower--;
   }
 
-  return bestPoints;
+  return farthestPair;
 }
 
 void draw() {
@@ -137,21 +144,29 @@ void draw() {
 }
 
 float getDistance(Vector a, Vector b) {
+  // Calculates the Euclidean distance between points a and b.
   float dx = b.x - a.x;
   float dy = b.y - a.y;
   return sqrt(dx*dx + dy*dy);
 }
 
 float getDirection(Vector p, Vector q, Vector r) {
-  /* Returns a positive number if pqr is a clockwise turn,
-   * negative if pqr is a counterclockwise turn,
-   * zero if they are colinear.
-   */
+  // Returns a positive number if pqr is a clockwise turn,
+  // negative if pqr is a counterclockwise turn,
+  // zero if they are colinear.
   return (q.y - p.y)*(r.x - p.x) - (q.x - p.x)*(r.y - p.y);
 }
 
+float getCrossProductFromPoints(Vector a1, Vector a2, Vector b1, Vector b2) {
+  // Calculates the "cross product" between vector a and vector b.
+  // Vector a is the vector between point a1 and point a2, and likewise for Vector b.
+  Vector a = a2.minus(a1);
+  Vector b = b2.minus(b1);
+  return a.y * b.x - a.x * b.y;
+}
+
 Vector[] mergeSort(Vector[] a, int start, int end) {
-  // Merge sort, implemented with 
+  // Merge sort an array of Vectors in order of ascending x-coordinate.
   Vector[] b = new Vector[a.length];
   if (start == end) {
     return new Vector[] {a[start]}; // Singleton array
@@ -167,6 +182,7 @@ Vector[] mergeSort(Vector[] a, int start, int end) {
 }
 
 Vector[] merge(Vector[] a, Vector[] b) {
+  // The merge step for merge sort.
   Vector[] merged = new Vector[a.length + b.length];
 
   int iA = 0;

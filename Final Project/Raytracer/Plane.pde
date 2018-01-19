@@ -14,13 +14,6 @@ class Plane extends SceneObject {
     this.normal = new Vector3(j.getJSONObject("normal"));
   }
 
-  JSONObject toJSONObject() {
-    JSONObject j = super.toJSONObject();
-    j.setJSONObject("point", this.point.toJSONObject());
-    j.setJSONObject("normal", this.normal.toJSONObject());
-    return j;
-  }
-
   float rayIntersect(Ray ray) {
     float cosTheta = -this.normal.dot(ray.direction);
 

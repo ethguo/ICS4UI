@@ -17,13 +17,6 @@ class Sphere extends SceneObject {
     this.radiusSquared = this.radius * this.radius;
   }
 
-  JSONObject toJSONObject() {
-    JSONObject j = super.toJSONObject();
-    j.setJSONObject("center", this.center.toJSONObject());
-    j.setFloat("radius", this.radius);
-    return j;
-  }
-
   float rayIntersect(Ray ray) {
     Vector3 co = ray.origin.minus(this.center);
 

@@ -30,10 +30,4 @@ class Scene extends JSONSerializable {
     // this.direction = new Vector3(j.getJSONObject("direction"));
     // this.intensity = j.getFloat("intensity");
   }
-
-  // JSONObject toJSONObject() {
-    // JSONObject j = super.toJSONObject();
-    // j.setFloat("fov", this.fov);
-    // return j;
-  // }
 }

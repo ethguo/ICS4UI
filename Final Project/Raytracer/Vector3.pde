@@ -35,14 +35,6 @@ class Vector3 extends JSONSerializable {
     return color(this.x*255, this.y*255, this.z*255);
   }
 
-  JSONObject toJSONObject() {
-    JSONObject j = super.toJSONObject();
-    j.setFloat("x", this.x);
-    j.setFloat("y", this.y);
-    j.setFloat("z", this.z);
-    return j;
-  }
-
   float getMagnitude() {
     return sqrt(x*x + y*y + z*z);
   }

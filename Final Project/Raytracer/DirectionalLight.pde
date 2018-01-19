@@ -14,13 +14,6 @@ class DirectionalLight extends Light {
     this.intensity = j.getFloat("intensity");
   }
 
-  JSONObject toJSONObject() {
-    JSONObject j = super.toJSONObject();
-    j.setJSONObject("direction", this.direction.toJSONObject());
-    j.setFloat("intensity", this.intensity);
-    return j;
-  }
-
   Vector3 getDirection(Vector3 point) {
     return this.direction;
   }

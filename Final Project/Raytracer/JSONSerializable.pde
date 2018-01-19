@@ -2,13 +2,32 @@ class JSONSerializable {
   JSONSerializable() {}
 
   JSONSerializable(JSONObject j) {
-    String className = this.getClass().getSimpleName();
+    Class classObj = this.getClass();
+    String className = classObj.getSimpleName();
     println(className);
     String jsonType = j.getString("type");
-    if (jsonType != className) throw new JSONTypeMismatchException("Invalid type for conversion in JSON object: expected " + className + ", got " + jsonType);
+    if (!jsonType.equals(className)) throw new JSONTypeMismatchException("Invalid type for JSON deserialization: expected " + className + ", got " + jsonType);
 
-    Field[] fields = this.getClass().getFields();
-    printArray(fields);
+    for (Object keyObject : j.keys()) {
+      try {
+        String k = (String) keyObject;
+        if (k.equals("type")) continue;
+        Object obj = j.get(k);
+        Field field = classObj.getField(k);
+        if (field.getType().isInstance(obj)) {
+          if (obj instanceof JSONSerializable)
+            field.set(this, /* https://stackoverflow.com/questions/30153309/create-object-of-unknown-class */);
+          else
+            field.set(this, obj);
+        }
+      }
+      catch (IllegalAccessException e) {
+        System.err.println("IllegalAccessException: " + e.getMessage());
+      }
+      catch (NoSuchFieldException e) {
+        System.err.println("NoSuchFieldException: " + e.getMessage());
+      }
+    }
   }
 
   JSONObject toJSONObject() {
@@ -31,6 +50,7 @@ class JSONSerializable {
           Object[] objects = (Object[]) field.get(this);
           // String fieldItemType = fieldType.substring(0, fieldType.length()-2);
           switch (fieldType) {
+            // Handle primitive types: Cast to an array of the right type, and copy everything from the objects array into the jsonArray.
             case "boolean[]":
               for (boolean obj : (Boolean[]) objects) jsonArray.append(obj);
               break;
@@ -44,6 +64,7 @@ class JSONSerializable {
               for (String obj : (String[]) objects) jsonArray.append(obj);
               break;
             default:
+              // If not a primitive type, try handling it as a JSONSerializable.
               if (objects instanceof JSONSerializable[]) {
                 for (JSONSerializable obj : (JSONSerializable[]) objects) jsonArray.append(obj.toJSONObject());
               }

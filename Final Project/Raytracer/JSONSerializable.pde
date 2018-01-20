@@ -14,18 +14,20 @@ class JSONSerializable {
         if (k.equals("type")) continue;
         Object obj = j.get(k);
         Field field = classObj.getField(k);
-        if (field.getType().isInstance(obj)) {
-          if (obj instanceof JSONSerializable)
-            field.set(this, /* https://stackoverflow.com/questions/30153309/create-object-of-unknown-class */);
-          else
-            field.set(this, obj);
+        print(field);
+        println(obj);
+        if (obj instanceof JSONObject) {
+          Object newObj = classObj.getConstructor(JSONSerializable.class).newInstance(obj);
+          if (classObj.isInstance(newObj))
+            field.set(this, newObj);
+          else throw new JSONTypeMismatchException("");
+        }
+        else {
+          field.set(this, obj);
         }
       }
-      catch (IllegalAccessException e) {
-        System.err.println("IllegalAccessException: " + e.getMessage());
-      }
-      catch (NoSuchFieldException e) {
-        System.err.println("NoSuchFieldException: " + e.getMessage());
+      catch (ReflectiveOperationException e) {
+        System.err.println("ReflectiveOperationException: " + e.getMessage());
       }
     }
   }
@@ -95,8 +97,8 @@ class JSONSerializable {
           }
         }
       }
-      catch (IllegalAccessException e) {
-        System.err.println("IllegalAccessException: " + e.getMessage());
+      catch (ReflectiveOperationException e) {
+        System.err.println("ReflectiveOperationException: " + e.getMessage());
       }
     }
 

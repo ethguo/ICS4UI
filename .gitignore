@@ -1,6 +1,9 @@
 build-tmp/
 node_modules/
+.idea/
 local/
 Sandbox/
 Final Project/Raytracer/GUI_BUILDER_DATA/
 Final Project/Raytracer/gui.pde
+application.windows32/
+application.windows64/
